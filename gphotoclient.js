@@ -5,17 +5,28 @@ var path = require('path');
 var fs = require('fs');
 
 if (process.argv.length < 3) {
-	console.error("Please provide port # as arg");
+	console.error("Usage: gphotoclient.js <PORT> <FREQUENCY>");
+	console.error(" <PORT> is port number where huayra-stopmotion is listening");
+	console.error(" <FREQUENCY> is in milliseconds. A photo will be taken every FREQUENCY ms");
 	process.exit(1);
 }
 var port = process.argv[2];
+var freq = 400;
+if (process.argv.length > 3) {
+	freq = process.argv[3];
+}
 
+
+var simulationIdx = 0;
 
 /**
  * Simulate image capture using a static file
  */
 function captureImageSim(conn) {
-	emitImage(conn, 'capture.jpg');
+	emitImage(conn, 'sim/guitar' + simulationIdx + '.jpg');
+	if (++simulationIdx >= 5) {
+		simulationIdx = 0;
+	}
 }
 
 /**
@@ -115,14 +126,12 @@ function captureImage(conn) {
  */
 function startClient(captureFn) {
 	var conn = socket.connect('http://localhost:' + port);
-	console.log(conn);
-
 	conn.on('connect', function() {
 		console.log("Connected.");
-		setInterval(function _timerFn() { captureFn(conn); }, 1000);
-		conn.on('capturaSuccess', function(data) {
-			console.log('server responded:', data);
-		});
+		setInterval(function _timerFn() { captureFn(conn); }, freq);
+		// conn.on('capturaSuccess', function(data) {
+		// 	console.log('server responded:', data);
+		// });
 		conn.on('disconnect', function() {
 			console.log("Disconnected.", conn);
 			process.exit(0);

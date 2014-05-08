@@ -19,3 +19,9 @@ Run the following:
 where *PORT* is the port on which huayra is listening.
 
 
+
+## Attribution ##
+
+The guitar animation images used in simulation mode come from here:
+
+http://artistlimited.deviantart.com/art/Animated-Guitarist-273391288
