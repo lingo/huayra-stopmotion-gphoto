@@ -83,14 +83,14 @@ function captureImage(conn) {
 	tmp.tmpName(function _tmpnameGenerated(err, tempPath) {
 		// Regexes to match gphoto output
 		var rxError = /Error/gi;
-		var rxSaving = /Saving file as ([^.jpg]+)/g;
+		var rxSaving = /Saving file as ([^.]+)\.jpg/g;
 		var rxSaved = /New file is in/g;
 
 		var saved = null; // saved file path, extracted from gPhoto output
 
+		var args = [ "--capture-image-and-download", "--force-overwrite", "--debug-logfile=gphoto.jpg", "--filename=" + tempPath];
 		console.log('Spawn gphoto2', args);
 		var dir = path.dirname(tempPath);
-		var args = [ "--capture-image-and-download", "--force-overwrite", "--filename=" + tempPath];
 		var capture = spawn("gphoto2", args, { cwd: dir });
 
 		// Listen for errors
@@ -107,12 +107,12 @@ function captureImage(conn) {
 			} else {
 				if (dataStr.match(rxSaved)) {
 					console.log("\tfinished saving image.");
-					emitImage(conn, saved);
 				}
 				saved = rxSaving.exec(dataStr);
-				if (saved && saved.length === 2) {
+				if (saved) {
 					saved = saved[1] + '.jpg';
 					console.log('\tsaving image as ', saved);
+					emitImage(conn, saved);
 				} else {
 					console.warn("\tUnknown response from gphoto2", dataStr);
 				}
